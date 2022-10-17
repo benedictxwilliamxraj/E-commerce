@@ -11,6 +11,7 @@ function ShopList(){
     const [colorfilter, setcolorFilter] = useState({ colors: []});
     const [typefilter, settypeFilter] = useState({ types: []});
     const [genderfilter, setgenderFilter] = useState({ genders: []});
+    const [pricefilter, setpriceFilter] = useState({ prices: []});
      
 
     const searchStyle = { border: "black ridge 1px",
@@ -26,7 +27,7 @@ function ShopList(){
         filterHandle();
         // typefilterHandle(colordata);
 
-    }, [colorfilter,typefilter,genderfilter]);
+    }, [colorfilter,typefilter,genderfilter,pricefilter]);
 
     
     const Loadingdata = async () =>{
@@ -46,7 +47,7 @@ function ShopList(){
     const filterHandle=  ()=>{
         let r= [];
         //console.log(typefilter);
-        if ((colorfilter.colors.length !== 0) || (typefilter.types.length!==0)||(genderfilter.genders.length!==0)){
+        if ((colorfilter.colors.length !== 0) || (typefilter.types.length!==0)||(genderfilter.genders.length!==0)||(pricefilter.prices.length!==0)){
             
         for (const i in colorfilter.colors){
             //console.log(data);
@@ -71,6 +72,23 @@ function ShopList(){
             let result = Data.filter((d) => d.gender ===genderfilter.genders[i]);
             console.log(result)
             r = [...r, ...result];
+            
+            
+        }
+        console.log(pricefilter.prices);
+        for (const i in pricefilter.prices){
+            //console.log(pricefilter.prices[i]);
+            if (pricefilter.prices[i] == 250){
+                let result = Data.filter((d) => d.price <= 250);
+                r = [...r, ...result];
+            }else if(pricefilter.prices[i] == 255){
+                let result = Data.filter((d) => (250 < d.price) &&  (d.price < 450));
+                
+                r = [...r, ...result];
+            }else{
+                let result = Data.filter((d) => d.price >= 450);
+                r = [...r, ...result];
+            }           
             
             
         }
@@ -153,6 +171,21 @@ function ShopList(){
        
     };
 
+    const filterPrice = (e) => {
+        const { value, checked } = e.target;
+        const { prices } = pricefilter;
+    
+        if (checked){
+                setpriceFilter({
+                    prices: [...prices, value]
+                });
+                // console.log(typefilter);
+            
+        }else{
+            setpriceFilter({prices: prices.filter((e)=> e !==value)});
+        }
+       
+    };
       
     
     
@@ -172,7 +205,7 @@ function ShopList(){
                     <Col xs={2}>
                         <h5>Color</h5>
                         <input type="checkbox" id="Color1" name="Color1" value="Red" onChange={filterColor}/>
-                        <label for="Color1"> Red {colorfilter.colors}</label><br />
+                        <label for="Color1"> Red </label><br />
                         <input type="checkbox" id="Color2" name="Color2" value="Blue" onChange={filterColor}/>
                         <label for="Color2"> Blue</label><br />
                         <input type="checkbox" id="Color3" name="Color3" value="Black" onChange={filterColor}/>
@@ -190,12 +223,12 @@ function ShopList(){
                         <label for="Gender2"> Women</label><br/> 
                         <br/>
                         <h5>Price</h5>
-                        <input type="checkbox" id="Price1" name="Price1" value="250" onChange={filterGender}/>
-                        <label for="Price1"> 0- Rs250</label><br/> 
-                        <input type="checkbox" id="Price2" name="Price2" value="251" onChange={filterGender}/>
-                        <label for="Price2"> Rs250 - Rs450</label><br/> 
-                        <input type="checkbox" id="Price3" name="Price3" value="450" onChange={filterGender}/>
-                        <label for="Price3"> Rs450</label><br/> 
+                        <input type="checkbox" id="Price1" name="Price1" value="250" onChange={filterPrice}/>
+                        <label for="Price1">0-250</label><br/> 
+                        <input type="checkbox" id="Price2" name="Price2" value="255" onChange={filterPrice}/>
+                        <label for="Price2">250-450</label><br/> 
+                        <input type="checkbox" id="Price3" name="Price3" value="450" onChange={filterPrice}/>
+                        <label for="Price3"> 450</label><br/> 
                         <br/>
                         <h5>Type</h5>
                         <input type="checkbox" id="type1" name="type1" value="Polo" onChange={filterType}/>
