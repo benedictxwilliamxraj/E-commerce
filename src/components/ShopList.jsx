@@ -21,12 +21,13 @@ function ShopList(){
 
     useEffect(()=>{
         Loadingdata();
+        colorfilterhan();
         
     }, [colorfilter]);
 
     
     const colorfilterhan=  ()=>{
-        // console.log(data);
+        
         let r= [];
         if (colorfilter.colors.length !== 0){
         
@@ -40,9 +41,10 @@ function ShopList(){
             //console.log(r);
             
         }
-        console.log(r);
+        
+        setfilterdata(r);
     }else{
-        Loadingdata();
+        setfilterdata(data);
     }
     
     };
@@ -51,6 +53,7 @@ function ShopList(){
     const Loadingdata = async () =>{
         await axios.get('https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json')
                                     .then((response)=>setData(response.data))
+                                    .then((response)=>setfilterdata(response.data))
                                     .catch((err)=>console.log(err));
 
     };
@@ -63,7 +66,7 @@ function ShopList(){
             result= result.filter((d) => d.name.toLowerCase().includes(key.toLowerCase()));
             if(result){
                 // console.log(result);
-                setData(result);
+                setfilterdata(result);
             }
 
             }else{
@@ -176,7 +179,7 @@ function ShopList(){
                         <div>
                         <Row>
                             {
-                            data.map((item, index)=> (
+                            filterdata.map((item, index)=> (
                                 <Col s={6} md={4} key={index}>
                                 <ShoppingItem 
                                 key = {item.id}
