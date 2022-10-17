@@ -6,10 +6,11 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 
 function ShopList(){
-    const [data, setData] = useState([]);
+    const [Data, setData] = useState([]);
+    const [filterdata, setfilterdata] = useState([]);
     const [colorfilter, setcolorFilter] = useState({ colors: []});
-    const [filterdata, setfilterdata] = useState(data);
-
+    const [typefilter, settypeFilter] = useState({ types: []});
+    const [genderfilter, setgenderFilter] = useState({ genders: []});
      
 
     const searchStyle = { border: "black ridge 1px",
@@ -21,42 +22,72 @@ function ShopList(){
 
     useEffect(()=>{
         Loadingdata();
-        colorfilterhan();
         
-    }, [colorfilter]);
+        filterHandle();
+        // typefilterHandle(colordata);
+
+    }, [colorfilter,typefilter,genderfilter]);
 
     
-    const colorfilterhan=  ()=>{
-        
-        let r= [];
-        if (colorfilter.colors.length !== 0){
-        
+    const Loadingdata = async () =>{
+        await axios.get('https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json')
+                                    .then((response)=>{
+                                        // setfilterdata(response.data);
+                                        setData(response.data);
+                                        if (filterdata.length === 0){
+                                            setfilterdata(response.data);
+                                        }
+                                        //console.log(response.data);
+                                    })
+                                    .catch((err)=>console.log(err));
+         
+    };
 
-        console.log(data);    
+    const filterHandle=  ()=>{
+        let r= [];
+        //console.log(typefilter);
+        if ((colorfilter.colors.length !== 0) || (typefilter.types.length!==0)||(genderfilter.genders.length!==0)){
+            
         for (const i in colorfilter.colors){
             //console.log(data);
-            let result = data.filter((d) => d.color ===colorfilter.colors[i]);
+            let result = Data.filter((d) => d.color ===colorfilter.colors[i]);
             //console.log(result)
             r = [...r, ...result];
-            //console.log(r);
+            
             
         }
-        
+
+        for (const i in typefilter.types){
+            console.log(typefilter.types[i]);
+            let result = Data.filter((d) => d.type ===typefilter.types[i]);
+            //console.log(result)
+            r = [...r, ...result];
+            
+            
+        }
+        // console.log(genderfilter);
+        for (const i in genderfilter.genders){
+            console.log(genderfilter.genders[i]);
+            let result = Data.filter((d) => d.gender ===genderfilter.genders[i]);
+            console.log(result)
+            r = [...r, ...result];
+            
+            
+        }
+
+        console.log(r);
         setfilterdata(r);
+        //console.log(colorfilterdata);
     }else{
-        setfilterdata(data);
+        setfilterdata(Data);
     }
     
     };
 
+    
 
-    const Loadingdata = async () =>{
-        await axios.get('https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json')
-                                    .then((response)=>setData(response.data))
-                                    .then((response)=>setfilterdata(response.data))
-                                    .catch((err)=>console.log(err));
 
-    };
+    
 
     const searchHandle = async (event)=>{
         let key = event.target.value;
@@ -65,7 +96,6 @@ function ShopList(){
             result = await result.json();
             result= result.filter((d) => d.name.toLowerCase().includes(key.toLowerCase()));
             if(result){
-                // console.log(result);
                 setfilterdata(result);
             }
 
@@ -78,51 +108,52 @@ function ShopList(){
     const filterColor = (e) => {
         const { value, checked } = e.target;
         const { colors } = colorfilter;
-        let r = [];
+        
         if (checked){
                 setcolorFilter({
                 colors: [...colors, value]
                 });
-                // console.log(colorfilter);
+                //console.log(colorfilter);
             
         }else{
             setcolorFilter({colors: colors.filter((e)=> e !==value)});
         }
-        // if (colors){
-        //     for (const i in colorfilter.colors){
-        //         let result = await fetch('https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json');
-        //         result = await result.json();
-        //         result = result.filter((d) => d.color === colors[i]);
-        //         //console.log(colors[i])
-        //         r = [...r, ...result]
-        //         setData(r);
-        //     }
-        // }else{
-        //     LoadShopitemData();
-        // }
-        
-        
-
-        //setData(result);
-        
-
-        // console.log(checked);
-        // if (checked){
-        //     let result = await fetch('https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json');
-        //     result = await result.json();
-        //     result= result.filter((d) => d.color === value);
-        //     console.log(result);
-        //     setData(result);
-        // } else{
-        //     LoadShopitemData();
-        // }
+       
     };
 
-    // const genderfilter = async (e) => {
-    //     const { value, checked } = e.target;
-        
-    //     return setgenderFilter([...genderfilter, value]);
-    // }    
+    const filterType = (e) => {
+        const { value, checked } = e.target;
+        const { types } = typefilter;
+    
+        if (checked){
+                settypeFilter({
+                    types: [...types, value]
+                });
+                // console.log(typefilter);
+            
+        }else{
+            settypeFilter({types: types.filter((e)=> e !==value)});
+        }
+       
+    };
+
+    const filterGender = (e) => {
+        const { value, checked } = e.target;
+        const { genders } = genderfilter;
+    
+        if (checked){
+                setgenderFilter({
+                    genders: [...genders, value]
+                });
+                // console.log(typefilter);
+            
+        }else{
+            setgenderFilter({genders: genders.filter((e)=> e !==value)});
+        }
+       
+    };
+
+      
     
     
 
@@ -147,29 +178,31 @@ function ShopList(){
                         <input type="checkbox" id="Color3" name="Color3" value="Black" onChange={filterColor}/>
                         <label for="Color3"> Black</label><br/>
                         <input type="checkbox" id="Color4" name="Color4" value="Green" onChange={filterColor}/>
-                        <label for="Color3"> Green</label><br/>
+                        <label for="Color4"> Green</label><br/>
+                        <input type="checkbox" id="Color5" name="Color5" value="Grey" onChange={filterColor}/>
+                        <label for="Color5"> Grey</label><br/>
                         <br />
                         <br /> 
                         <h5>Gender</h5>
-                        <input type="checkbox" id="Gender1" name="Gender1" value="Male"/>
-                        <label for="Gender1"> Male</label><br/> 
-                        <input type="checkbox" id="Gender2" name="Gender2" value="Female"/>
-                        <label for="Gender2"> Female</label><br/> 
+                        <input type="checkbox" id="Gender1" name="Gender1" value="Men" onChange={filterGender}/>
+                        <label for="Gender1"> Men</label><br/> 
+                        <input type="checkbox" id="Gender2" name="Gender2" value="Women" onChange={filterGender}/>
+                        <label for="Gender2"> Women</label><br/> 
                         <br/>
                         <h5>Price</h5>
-                        <input type="checkbox" id="Price1" name="Price1" value="250" />
+                        <input type="checkbox" id="Price1" name="Price1" value="250" onChange={filterGender}/>
                         <label for="Price1"> 0- Rs250</label><br/> 
-                        <input type="checkbox" id="Price2" name="Price2" value="251" />
+                        <input type="checkbox" id="Price2" name="Price2" value="251" onChange={filterGender}/>
                         <label for="Price2"> Rs250 - Rs450</label><br/> 
-                        <input type="checkbox" id="Price3" name="Price3" value="450" />
+                        <input type="checkbox" id="Price3" name="Price3" value="450" onChange={filterGender}/>
                         <label for="Price3"> Rs450</label><br/> 
                         <br/>
                         <h5>Type</h5>
-                        <input type="checkbox" id="type1" name="type1" value="Polo" />
+                        <input type="checkbox" id="type1" name="type1" value="Polo" onChange={filterType}/>
                         <label for="type1">Polo</label><br/> 
-                        <input type="checkbox" id="type2" name="type2" value="Hoodie" />
+                        <input type="checkbox" id="type2" name="type2" value="Hoodie" onChange={filterType}/>
                         <label for="type2">Hoodie</label><br/> 
-                        <input type="checkbox" id="type3" name="type3" value="Basic" />
+                        <input type="checkbox" id="type3" name="type3" value="Basic" onChange={filterType}/>
                         <label for="type3">Basic</label><br/> 
 
                     </Col>
@@ -178,8 +211,7 @@ function ShopList(){
                     <Container>
                         <div>
                         <Row>
-                            {
-                            filterdata.map((item, index)=> (
+                            {filterdata.map((item, index)=> (
                                 <Col s={6} md={4} key={index}>
                                 <ShoppingItem 
                                 key = {item.id}
